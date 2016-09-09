@@ -36,9 +36,9 @@
         </rollingPolicy>
     </appender>
     
-    <logger name ="com.wd.erp.asbrpc.service.WdRpcService" level="DEBUG" additivity="false" >
+    <logger name ="com.wd.erp.zra.service.WdRpcService" level="DEBUG" additivity="false" >
 	      <appender-ref ref ="asbErrorAppender"/>
-	      <!--  <appender-ref ref ="STDOUT"/> -->
+	      <appender-ref ref ="STDOUT"/>
 	      
 	</logger>
     

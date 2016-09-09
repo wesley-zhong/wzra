@@ -4,6 +4,8 @@ package com.wd.erp.zra;
 import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 import org.springframework.context.ApplicationContext;
 
+import com.wd.erp.zra.service.WdRpcService;
+
 
 /**
  *  wd rpc main app

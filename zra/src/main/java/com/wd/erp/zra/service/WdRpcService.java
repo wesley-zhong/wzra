@@ -1,6 +1,11 @@
 package com.wd.erp.zra.service;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -21,7 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wd.erp.zra.bean.CollectNote;
+import com.wd.erp.zra.bean.CollectNoteList;
 import com.wd.erp.zra.bean.config.ZraConfig;
+import com.wd.erp.zra.util.DBUtils;
 
 @Component
 public class WdRpcService {
@@ -33,8 +43,25 @@ public class WdRpcService {
 	private DataSource dataSource;
 	
 	private Logger logger = LoggerFactory.getLogger(WdRpcService.class);
+	
+	private CollectNoteList  getCollecNoteListFromDb() throws SQLException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException{
+		CollectNoteList collectNoteList = new CollectNoteList();
+		List<CollectNote> collectNoteArrayList = new ArrayList<CollectNote>();
+		
+		ResultSet rset = this.dataSource.getConnection().prepareStatement("select * from API_V_STKD").executeQuery();
+		while(rset.next()){
+			CollectNote cllNote = DBUtils.parseObj(rset, CollectNote.class);
+			collectNoteArrayList.add(cllNote);	
+		}
+		collectNoteList.setCollectNoteList(collectNoteArrayList);		
+		return collectNoteList;	
+	}
 
-	public void sendRpcData() {
+	public void sendRpcData() throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException, SQLException, JsonProcessingException {
+		CollectNoteList  cllectNoteList = getCollecNoteListFromDb();
+		ObjectMapper objectMapper  = new ObjectMapper();
+		String bodyData = objectMapper.writeValueAsString(cllectNoteList);
+		logger.info("send body ={}", bodyData);
 		String loginAccessToken = getHttpsToken();
 		if (loginAccessToken == null)
 			return;
@@ -43,7 +70,6 @@ public class WdRpcService {
 		post.addHeader(new BasicHeader("Authorization", "OAuth "+ loginAccessToken));
 
 		try {
-			String bodyData = "";
 			StringEntity body = new StringEntity(bodyData);
 			body.setContentType("application/json");
 			post.setEntity(body);
@@ -78,9 +104,10 @@ public class WdRpcService {
 
 		HttpClient httpclient = HttpClientBuilder.create().build();
 		String loginURL = zraConfig.getLoginUrl() + zraConfig.getGrantService()
-				+ "&client_id=" + zraConfig.getClientId() + "&client_secret="
-				+ zraConfig.getClientSecret() + "&password="
-				+ zraConfig.getPassword();
+				+ "&client_id=" + zraConfig.getClientId() 
+				+ "&client_secret=" + zraConfig.getClientSecret() 
+				+ "&username=" + zraConfig.getUsername()
+				+ "&password=" + zraConfig.getPassword();
 		logger.info(loginURL);
 
 		HttpPost httpPost = new HttpPost(loginURL);

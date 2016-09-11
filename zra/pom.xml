@@ -60,6 +60,12 @@
 			<version>3.13</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
 
 		<!-- Serialization -->
 
@@ -233,7 +239,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.wd.erp.zra.WdRaceRpc</mainClass>
+							<mainClass>com.wd.erp.zra.WdRpcApp</mainClass>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
